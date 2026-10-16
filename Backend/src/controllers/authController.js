@@ -1,4 +1,6 @@
-const registerUser = (req, res) => {
+const User = require("../models/User");
+
+const registerUser = async (req, res) => {
     
     // Extract the fields required for registration.
     const { name, email, password }= req.body;
@@ -46,6 +48,19 @@ const registerUser = (req, res) => {
         return res.status(400).json({
             success : false,
             message : "Password must be 8 chahracters long"
+        });
+    }
+
+    // Check whether the email is already registered.
+    const existingUser = await User.findOne({
+        email : normalizedEmail
+    });
+
+    // Stop registration if a matching user already exists.
+    if(existingUser){
+        return res.status(400).json({
+            success : false,
+            message : "Email already exists. Please login"
         });
     }
 
