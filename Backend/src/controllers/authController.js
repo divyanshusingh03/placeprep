@@ -50,7 +50,7 @@ const registerUser = async (req, res) => {
         if(password.length < 8){
             return res.status(400).json({
                 success : false,
-                message : "Password must be 8 chahracters long"
+                message : "Password must be 8 characters long"
             });
         }
 
@@ -107,6 +107,101 @@ const registerUser = async (req, res) => {
         
     }
 
-}
+};
 
-module.exports = { registerUser };
+//
+const loginUser = async (req, res)=>{
+
+    try{
+        // Extract the credentials required for login.
+        const { email, password } = req.body;
+
+        // Reject requests with missing credentials.
+        if(!email || !password){
+            return res.status(400).json({
+                success : false,
+                message : "Email and password are missing"
+            });
+        }
+
+        // Validate input types before using string methods.
+        if(typeof(email) !== "string" || typeof(password) !== "string"){
+            return res.status(400).json({
+                success : false,
+                message : "Email and password must be strings"
+            });
+        }
+
+        // Normalize the email consistently with registration.
+        const normalizedEmail = email.trim().toLowerCase();
+
+        // Reject empty or whitespace-only email values.
+        if(normalizedEmail === ""){
+            return res.status(400).json({
+                success : false,
+                message : "Fields cannot be empty"
+            });
+        }
+
+        // Validate the basic email format.
+        const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if(!regexEmail.test(normalizedEmail)){
+            return res.status(400).json({
+                success : false,
+                message : "Please enter a valid email"
+            });
+        }
+
+        // Enforce the minimum password length without modifying it.
+        if(password.length < 8){
+            return res.status(400).json({
+                success : false,
+                message : "Password must be 8 characters long"
+            });
+        }
+
+        // Find the user associated with the normalized email.
+        const existingUser = await User.findOne({
+            email : normalizedEmail
+        });
+
+        // Use the same message for an unknown email and wrong password.
+        if(!existingUser){
+            return res.status(401).json({
+                success : false,
+                message : "Invalid email or password."
+            });
+        }
+
+        // Compare the entered password with the stored bcrypt hash.
+        const isPasswordValid = await bcrypt.compare(password, existingUser.password);
+
+        // Reject incorrect passwords.
+        if(!isPasswordValid){
+            return res.status(401).json({
+                success : false,
+                message : "Invalid email or password."
+            });
+        }
+
+        // Confirm successful login without exposing sensitive data.
+        res.status(200).json({
+            success : true,
+            message : "Login successful"
+        });
+
+    }
+    catch (error) {
+        // Log unexpected errors for debugging.
+        console.error("Login error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+
+};
+
+module.exports = { registerUser, loginUser };
