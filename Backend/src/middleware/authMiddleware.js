@@ -7,8 +7,8 @@ const authMiddleware = (req, res, next) => {
         const authHeader = req.headers.authorization;
 
         // Check whether the token is provided.
-        if(!authHeader || !authHeader.startsWith("Bearer")){
-            res.status(401).json({
+        if(!authHeader || !authHeader.startsWith("Bearer ")){
+            return res.status(401).json({
                 success : false,
                 message : "Access denied. Token is missing"
             });
