@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const generateToken = require("../utils/generateToken");
 
 const registerUser = async (req, res) => {
     
@@ -71,17 +72,20 @@ const registerUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Create the user with normalized data and a default student role.
-        await User.create({
-            name : normalizedName,
-            email : normalizedEmail,
-            password : hashedPassword,
-            role : "student"
-        });
+        const newUser =   await User.create({
+                            name : normalizedName,
+                            email : normalizedEmail,
+                            password : hashedPassword,
+                            role : "student"
+                        });
+
+        const token = generateToken(newUser);
 
         // Send a 201 Created response after successful user registration.
         res.status(201).json({
             success : true,
-            message : "User created successfully"
+            message : "User created successfully",
+            token
         });
          
     }
@@ -153,14 +157,6 @@ const loginUser = async (req, res)=>{
             });
         }
 
-        // Enforce the minimum password length without modifying it.
-        if(password.length < 8){
-            return res.status(400).json({
-                success : false,
-                message : "Password must be 8 characters long"
-            });
-        }
-
         // Find the user associated with the normalized email.
         const existingUser = await User.findOne({
             email : normalizedEmail
@@ -185,10 +181,14 @@ const loginUser = async (req, res)=>{
             });
         }
 
+        //
+        const token = generateToken(existingUser);
+
         // Confirm successful login without exposing sensitive data.
         res.status(200).json({
             success : true,
-            message : "Login successful"
+            message : "Login successful",
+            token
         });
 
     }
