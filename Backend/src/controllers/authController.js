@@ -160,7 +160,7 @@ const loginUser = async (req, res)=>{
         // Find the user associated with the normalized email.
         const existingUser = await User.findOne({
             email : normalizedEmail
-        });
+        }).select("+password");
 
         // Use the same message for an unknown email and wrong password.
         if(!existingUser){
