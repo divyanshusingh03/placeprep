@@ -2,6 +2,7 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const generateToken = require("../utils/generateToken");
 
+// Handle new user registration and account creation.
 const registerUser = async (req, res) => {
     
     try{    
@@ -51,7 +52,7 @@ const registerUser = async (req, res) => {
         if(password.length < 8){
             return res.status(400).json({
                 success : false,
-                message : "Password must be 8 characters long"
+                message : "Password must be atleast 8 characters long"
             });
         }
 
@@ -113,7 +114,7 @@ const registerUser = async (req, res) => {
 
 };
 
-//
+// Authenticate existing users and generate a JWT after successful login.
 const loginUser = async (req, res)=>{
 
     try{
@@ -181,7 +182,7 @@ const loginUser = async (req, res)=>{
             });
         }
 
-        //
+        // Generate a JWT for the authenticated user.
         const token = generateToken(existingUser);
 
         // Confirm successful login without exposing sensitive data.
