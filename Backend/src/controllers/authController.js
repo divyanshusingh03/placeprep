@@ -8,7 +8,7 @@ const registerUser = async (req, res) => {
     try{    
         
         // Extract the fields required for registration.
-        const { name, email, password }= req.body;
+        const { name, email, password }= req.body || {};
 
         // Reject requests with missing or falsy required values.
         if(!name || !email || !password){
@@ -119,7 +119,7 @@ const loginUser = async (req, res)=>{
 
     try{
         // Extract the credentials required for login.
-        const { email, password } = req.body;
+        const { email, password } = req.body || {};
 
         // Reject requests with missing credentials.
         if(!email || !password){
